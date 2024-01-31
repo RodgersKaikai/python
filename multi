@@ -1,0 +1,69 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[2]:
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.datasets import load_breast_cancer
+from sklearn.metrics import classification_report, confusion_matrix
+
+# Load the dataset
+data = load_breast_cancer()
+X = pd.DataFrame(data.data, columns=data.feature_names)
+y = data.target
+
+# Basic Information
+print("Dataset Shape:", X.shape)
+print("\nFirst 5 rows of dataset:\n", X.head())
+print("\nStatistics of the dataset:\n", X.describe())
+
+# Check for missing values
+if X.isnull().sum().sum() == 0:
+    print("\nNo missing values in the dataset.")
+else:
+    print("\nMissing values in dataset:\n", X.isnull().sum())
+
+# Visualize the distribution of target variable
+sns.countplot(y)
+plt.title("Distribution of Target Variable")
+plt.show()
+
+# Visualize distributions of some selected features
+features_to_plot = ['mean radius', 'mean texture', 'mean perimeter', 'mean area']
+X[features_to_plot].hist(figsize=(10, 8))
+plt.suptitle("Distributions of Some Features")
+plt.show()
+
+# Correlation matrix
+plt.figure(figsize=(10, 8))
+sns.heatmap(X.corr(), annot=False, cmap='coolwarm')
+plt.title("Correlation Matrix")
+plt.show()
+
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# Create and train the logistic regression model
+model = LogisticRegression(max_iter=10000)
+model.fit(X_train, y_train)
+
+# Make predictions and evaluate the model
+predictions = model.predict(X_test)
+print("\nConfusion Matrix:\n", confusion_matrix(y_test, predictions))
+print("\nClassification Report:\n", classification_report(y_test, predictions))
+
+
+# In[3]:
+
+
+# Display the coefficients
+coefficients = pd.DataFrame(model.coef_[0], index=X.columns, columns=['Coefficient'])
+print("\nCoefficients of the predictor variables:\n", coefficients)
+
+
+# In[ ]:
